@@ -13,22 +13,22 @@ const postCategory = async (req: Request<{}, {}, Category>, res: Response<DBMess
     const newCategory = new CategoryModel(req.body);
     const savedCategory = await newCategory.save();
 
-    res.json({message: 'Category added successfully', data: savedCategory,});
+    res.status(201).json({message: 'Category added successfully', data: savedCategory,});
   } catch (error) {
     next(new CustomError((error as Error).message, 500));
   }
 }
 
-const getCategories = async (req: Request, res: Response<DBMessageResponse>, next: NextFunction) => {
+const getCategories = async (req: Request, res: Response<Category[]>, next: NextFunction) => {
   try {
     const categories = await CategoryModel.find();
-    res.json({message: 'Categories fetched successfully', data: categories});
+    res.json(categories);
   } catch (error) {
     next(new CustomError((error as Error).message, 500));
   }
 }
 
-const getCategory = async (req: Request<{id: string}>, res: Response<DBMessageResponse>, next: NextFunction) => {
+const getCategory = async (req: Request<{id: string}>, res: Response<Category>, next: NextFunction) => {
   try {
     const category = await CategoryModel.findById(req.params.id);
 
@@ -36,7 +36,7 @@ const getCategory = async (req: Request<{id: string}>, res: Response<DBMessageRe
       throw new CustomError('Category not found', 404);
     }
 
-    res.json({message: 'Category fetched successfully', data: category});
+    res.json(category);
   } catch (error) {
     next(new CustomError((error as Error).message, 500));
   }

@@ -17,7 +17,7 @@ const postAnimal = async (
     const newAnimal = new AnimalModel(req.body);
     const savedAnimal = await newAnimal.save();
 
-    res.json({ message: "Animal added successfully", data: savedAnimal });
+    res.status(201).json({ message: "Animal added successfully", data: savedAnimal });
   } catch (error) {
     next(new CustomError((error as Error).message, 500));
   }
@@ -25,12 +25,12 @@ const postAnimal = async (
 
 const getAnimals = async (
   req: Request,
-  res: Response<DBMessageResponse>,
+  res: Response<Animal[]>,
   next: NextFunction
 ) => {
   try {
-    const animals = await AnimalModel.find().populate('species');
-    res.json({ message: "Animals fetched successfully", data: animals });
+    const species = await AnimalModel.find();
+    res.json(species);
   } catch (error) {
     next(new CustomError((error as Error).message, 500));
   }
@@ -38,17 +38,17 @@ const getAnimals = async (
 
 const getAnimal = async (
   req: Request<{ id: string }>,
-  res: Response<DBMessageResponse>,
+  res: Response<Animal>,
   next: NextFunction
 ) => {
   try {
-    const animal = await AnimalModel.findById(req.params.id).populate('species');
+    const species = await AnimalModel.findById(req.params.id);
 
-    if (!animal) {
+    if (!species) {
       throw new CustomError("Animal not found", 404);
     }
 
-    res.json({ message: "Animal fetched successfully", data: animal });
+    res.json(species);
   } catch (error) {
     next(new CustomError((error as Error).message, 500));
   }
@@ -94,4 +94,26 @@ const deleteAnimal = async (
   }
 };
 
-export { postAnimal, getAnimals, getAnimal, putAnimal, deleteAnimal };
+const getAnimalsByBox = async (
+  req: Request<{}, {}, {}, {topRight: string; bottomLeft: string}>,
+  res: Response<Animal[]>,
+  next: NextFunction,
+) => {
+  try {
+    const {topRight, bottomLeft} = req.query;
+
+    const animals = await AnimalModel.find({
+      location: {
+        $geoWithin: {
+          $box: [topRight.split(','), bottomLeft.split(',')],
+        },
+      },
+    });
+
+    res.json(animals);
+  } catch (error) {
+    next(new CustomError((error as Error).message, 500));
+  }
+};
+
+export { postAnimal, getAnimals, getAnimal, putAnimal, deleteAnimal, getAnimalsByBox };

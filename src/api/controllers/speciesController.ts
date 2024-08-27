@@ -17,7 +17,7 @@ const postSpecies = async (
     const newSpecies = new SpeciesModel(req.body);
     const savedSpecies = await newSpecies.save();
 
-    res.json({ message: "Species added successfully", data: savedSpecies });
+    res.status(201).json({ message: "Species added successfully", data: savedSpecies });
   } catch (error) {
     next(new CustomError((error as Error).message, 500));
   }
@@ -25,12 +25,12 @@ const postSpecies = async (
 
 const getSpecies = async (
   req: Request,
-  res: Response<DBMessageResponse>,
+  res: Response<Species[]>,
   next: NextFunction
 ) => {
   try {
-    const species = await SpeciesModel.find().populate('category');
-    res.json({ message: "Species fetched successfully", data: species });
+    const species = await SpeciesModel.find();
+    res.json(species);
   } catch (error) {
     next(new CustomError((error as Error).message, 500));
   }
@@ -38,17 +38,17 @@ const getSpecies = async (
 
 const getSpeciesById = async (
   req: Request<{ id: string }>,
-  res: Response<DBMessageResponse>,
+  res: Response<Species>,
   next: NextFunction
 ) => {
   try {
-    const species = await SpeciesModel.findById(req.params.id).populate('category');
+    const species = await SpeciesModel.findById(req.params.id);
 
     if (!species) {
       throw new CustomError("Species not found", 404);
     }
 
-    res.json({ message: "Species fetched successfully", data: species });
+    res.json(species);
   } catch (error) {
     next(new CustomError((error as Error).message, 500));
   }

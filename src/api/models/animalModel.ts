@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
 import { Animal } from "../../types/Animal";
 
-const animalSchema = new mongoose.Schema<Animal>({
+const animalSchema = new Schema<Animal>({
   animal_name: {
     type: String,
     required: true,
@@ -10,17 +10,7 @@ const animalSchema = new mongoose.Schema<Animal>({
   birthdate: {
     type: Date,
     required: true,
-    validate: {
-      validator: function (value: Date) {
-        return value <= new Date();
-      },
-      message: "Birthdate cannot be in the future.",
-    },
-  },
-  species: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Species",
-    required: true,
+    max: Date.now(),
   },
   location: {
     type: {
@@ -31,14 +21,8 @@ const animalSchema = new mongoose.Schema<Animal>({
     coordinates: {
       type: [Number],
       required: true,
-      validate: {
-        validator: function (value: number[]) {
-          return value.length === 2;
-        },
-        message: "Coordinates must contain exactly two numbers.",
-      },
     },
   },
 });
 
-export default mongoose.model<Animal>("Animal", animalSchema);
+export default model<Animal>("Animal", animalSchema);
