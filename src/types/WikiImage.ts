@@ -1,7 +1,7 @@
 type WikiImage = {
   batchcomplete: boolean;
   query: Query;
-}
+};
 
 type Query = {
   normalized: Normalized[];
@@ -18,7 +18,7 @@ type Page = {
   pageid: number;
   ns: number;
   title: string;
-  thumbnail?: Thumbnail;
+  thumbnail: Thumbnail;
   pageimage: string;
 };
 

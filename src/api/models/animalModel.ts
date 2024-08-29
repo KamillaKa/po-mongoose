@@ -1,11 +1,12 @@
-import { Schema, model } from "mongoose";
-import { Animal } from "../../types/Animal";
+import {model, Schema} from 'mongoose';
+import {Animal} from '../../types/Animal';
 
 const animalSchema = new Schema<Animal>({
-  animal_name: {
-    type: String,
+  animal_name: {type: String, required: true, unique: true, minlength: 2},
+  species: {
+    type: Schema.Types.ObjectId,
+    ref: 'Species',
     required: true,
-    minlength: 2,
   },
   birthdate: {
     type: Date,
@@ -15,7 +16,7 @@ const animalSchema = new Schema<Animal>({
   location: {
     type: {
       type: String,
-      enum: ["Point"],
+      enum: ['Point'],
       required: true,
     },
     coordinates: {
@@ -25,4 +26,4 @@ const animalSchema = new Schema<Animal>({
   },
 });
 
-export default model<Animal>("Animal", animalSchema);
+export default model<Animal>('Animal', animalSchema);

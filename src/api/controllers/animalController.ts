@@ -1,8 +1,8 @@
-import { NextFunction, Request, Response } from "express";
-import { Animal } from "../../types/Animal";
-import { MessageResponse } from "../../types/Messages";
-import AnimalModel from "../models/animalModel";
-import CustomError from "../../classes/CustomError";
+import {NextFunction, Request, Response} from 'express';
+import AnimalModel from '../models/animalModel';
+import {Animal} from '../../types/Animal';
+import {MessageResponse} from '../../types/Messages';
+import CustomError from '../../classes/CustomError';
 
 type DBMessageResponse = MessageResponse & {
   data: Animal | Animal[];
@@ -11,41 +11,45 @@ type DBMessageResponse = MessageResponse & {
 const postAnimal = async (
   req: Request<{}, {}, Animal>,
   res: Response<DBMessageResponse>,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const newAnimal = new AnimalModel(req.body);
     const savedAnimal = await newAnimal.save();
 
-    res.status(201).json({ message: "Animal added successfully", data: savedAnimal });
-  } catch (error) {
-    next(new CustomError((error as Error).message, 500));
-  }
-};
-
-const getAnimals = async (
-  req: Request,
-  res: Response<Animal[]>,
-  next: NextFunction
-) => {
-  try {
-    const species = await AnimalModel.find();
-    res.json(species);
+    res.status(201).json({
+      message: 'Animal created',
+      data: savedAnimal,
+    });
   } catch (error) {
     next(new CustomError((error as Error).message, 500));
   }
 };
 
 const getAnimal = async (
-  req: Request<{ id: string }>,
+  req: Request,
+  res: Response<Animal[]>,
+  next: NextFunction,
+) => {
+  try {
+    const species = await AnimalModel.find();
+
+    res.json(species);
+  } catch (error) {
+    next(new CustomError((error as Error).message, 500));
+  }
+};
+
+const getSingleAnimal = async (
+  req: Request<{id: string}>,
   res: Response<Animal>,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const species = await AnimalModel.findById(req.params.id);
 
     if (!species) {
-      throw new CustomError("Animal not found", 404);
+      throw new CustomError('Animal not found', 404);
     }
 
     res.json(species);
@@ -55,40 +59,46 @@ const getAnimal = async (
 };
 
 const putAnimal = async (
-  req: Request<{ id: string }, {}, Animal>,
+  req: Request<{id: string}, {}, Animal>,
   res: Response<DBMessageResponse>,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const updatedAnimal = await AnimalModel.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }
+      {new: true},
     );
 
     if (!updatedAnimal) {
-      throw new CustomError("Animal not found", 404);
+      throw new CustomError('Animal not found', 404);
     }
 
-    res.json({ message: "Animal updated successfully", data: updatedAnimal });
+    res.json({
+      message: 'Animal updated',
+      data: updatedAnimal,
+    });
   } catch (error) {
     next(new CustomError((error as Error).message, 500));
   }
 };
 
 const deleteAnimal = async (
-  req: Request<{ id: string }>,
+  req: Request<{id: string}>,
   res: Response<DBMessageResponse>,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const deletedAnimal = await AnimalModel.findByIdAndDelete(req.params.id);
 
     if (!deletedAnimal) {
-      throw new CustomError("Animal not found", 404);
+      throw new CustomError('Animal not found', 404);
     }
 
-    res.json({ message: "Animal deleted successfully", data: deletedAnimal });
+    res.json({
+      message: 'Animal deleted',
+      data: deletedAnimal,
+    });
   } catch (error) {
     next(new CustomError((error as Error).message, 500));
   }
@@ -116,4 +126,11 @@ const getAnimalsByBox = async (
   }
 };
 
-export { postAnimal, getAnimals, getAnimal, putAnimal, deleteAnimal, getAnimalsByBox };
+export {
+  postAnimal,
+  getAnimal,
+  getSingleAnimal,
+  putAnimal,
+  deleteAnimal,
+  getAnimalsByBox,
+};
